@@ -19,21 +19,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##############################################################################
 
-from openerp import fields, osv
+from openerp import fields, models
 
 
-class account_tax_group(osv.osv):
+class account_tax_group(models.Model):
     _name = 'account.tax.group'
     _description = 'Tax Group'
 
-    _columns = {
-        'name': fields.char('Name', size=32, translate=True)
-    }
+    name = fields.Char('Name', translate=True)
 
 
-class account_tax(osv.osv):
+class account_tax(models.Model):
     _inherit = 'account.tax'
 
-    _columns = {
-	   'tax_group': fields.many2one('account.tax.group', 'Group')
-    }
+    tax_group = fields.Many2one('account.tax.group', 'Group')
