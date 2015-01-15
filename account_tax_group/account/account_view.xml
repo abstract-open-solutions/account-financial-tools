@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+      <record id="view_tax_group_form" model="ir.ui.view">
+          <field name="name">account.tax.group.form</field>
+          <field name="model">account.tax.group</field>
+          <field name="type">form</field>
+          <field name="arch" type="xml">
+              <form string="Tax group">
+                  <group>
+                      <field name="name"/>
+                  </group>
+              </form>
+          </field>
+      </record>
+
+
+      <record id="view_tax_group_tree" model="ir.ui.view">
+          <field name="name">account.tax.group.tree</field>
+          <field name="model">account.tax.group</field>
+          <field name="type">tree</field>
+          <field name="arch" type="xml">
+              <tree string="Tax Groups">
+                  <field name="name"/>
+              </tree>
+          </field>
+      </record>
+
+
+      <record id="action_tax_group_list" model="ir.actions.act_window">
+          <field name="name">Tax Groups</field>
+          <field name="res_model">account.tax.group</field>
+          <field name="view_type">form</field>
+          <field name="view_mode">tree,form</field>
+          <field name="view_id" ref="view_tax_group_tree"/>
+      </record>
+
+
+      <menuitem id="menu_tax_group"
+                action="action_tax_group_list"
+                name="Tax Groups"
+                parent="account.next_id_27" />
+
+
+    	<record id="view_tax_form_group" model="ir.ui.view">
+          <field name="name">account.tax.form.group</field>
+          <field name="model">account.tax</field>
+          <field name="inherit_id" ref="account.view_tax_form" />
+          <field name="arch" type="xml">
+              <field name="type_tax_use" position="after">
+                	<field name="tax_group" widget="selection" />
+              </field>
+      	  </field>
+      </record>
+
+    </data>
+</openerp>
