@@ -695,6 +695,8 @@ class WizardUpdateChartsAccounts(models.TransientModel):
             notes += _("The user type is different.\n")
         if account.reconcile != account_template.reconcile:
             notes += _("The reconcile is different.\n")
+        if account.parent_id.name != account_template.parent_id.name:
+            notes += _("The parent is different.\n")
         return notes
 
     @api.one
