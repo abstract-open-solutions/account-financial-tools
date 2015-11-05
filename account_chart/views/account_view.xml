@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_account_hierarchy_form" model="ir.ui.view">
+            <field name="name">account.account.hierarchy.form</field>
+            <field name="model">account.account</field>
+            <field name="inherit_id" ref="account.view_account_form"/>
+            <field name="arch" type="xml">
+              <field name="user_type_id" position="after">
+                <field name="parent_id"/>
+                <field name="consolidated_ids" widget="many2many_tags"/>
+                <field name="children_ids" widget="many2many_tags"/>
+              </field>
+            </field>
+        </record>
+
+        <record id="account.view_account_list" model="ir.ui.view">
+            <field name="field_parent">children_ids</field>
+        </record>
+
+        <record id="account_account_tree_balance" model="ir.ui.view">
+            <field name="name">account.account.tree.balance</field>
+            <field name="model">account.account</field>
+            <field name="inherit_id" ref="account.view_account_list"/>
+            <field name="arch" type="xml">
+                <field name="user_type_id" position="replace">
+                    <field name="credit"/>
+                    <field name="debit"/>
+                    <field name="balance"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="account.action_account_form" model="ir.actions.act_window">
+            <field name="view_type">tree</field>
+            <field name="domain">[('parent_id', '=', False)]</field>
+        </record>
+
+
+        <record id="view_account_parent_search" model="ir.ui.view">
+            <field name="name">account.account.parent.search</field>
+            <field name="model">account.account</field>
+            <field name="inherit_id" ref="account.view_account_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                  <field name="parent_id" filter_domain="[('code','=like',str(self)+'%')]" string="Parent"/>
+                </xpath>
+                <xpath expr="//group[1]" position="inside">
+                  <filter string="Parent" domain="" context="{'group_by':'parent_id'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_tree_view" model="ir.ui.view">
+            <field name="name">account.account.tree</field>
+            <field name="model">account.account</field>
+            <field name="arch" type="xml">
+                <tree string="Chart of accounts" toolbar="1" >
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="user_type_id"/>
+                    <field name="currency_id" options="{'no_create': True}" groups="base.group_multi_currency"/>
+                    <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_account_tree" model="ir.actions.act_window">
+            <field name="name">Accounts</field>
+            <field name="res_model">account.account</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="account_tree_view"/>
+        </record>
+        <menuitem action="action_account_tree" id="menu_action_account_tree" parent="account.account_account_menu" sequence="1"/>
+    </data>
+</openerp>
