@@ -216,11 +216,11 @@ class AccountVoucher(models.Model):
             if line.amount_currency and voucher.payment_rate:
                 if line.debit:
                     line.write(
-                        {'amount_currency': voucher.amount - voucher.bank_fee})
+                        {'amount_currency': voucher.amount})
                 if line.credit:
                     line.write(
                         {'amount_currency': -(
-                            voucher.amount - voucher.bank_fee)})
+                            voucher.amount)})
             if not line.credit and not line.debit:
                 res[1][0].remove(line_id)
                 line.unlink()
