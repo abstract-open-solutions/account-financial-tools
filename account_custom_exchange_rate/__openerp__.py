@@ -28,7 +28,7 @@
     """,
     'author': 'Abstract',
     'website': 'http://www.abstract.it',
-    'depends': ['account', 'base'],
+    'depends': ['account', 'base', 'account_voucher'],
     'data': [
         'views/account_view.xml',
     ],

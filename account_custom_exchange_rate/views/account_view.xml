@@ -28,6 +28,52 @@
             </field>
         </record>
 
+        <record id="account_invoice_supplier_form_exchrate" model="ir.ui.view">
+            <field name="name">account.invoice.supplier.form.exchrate</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <field name="currency_id" position="after">
+                    <field name="custom_exchange_rate"
+                        groups="base.group_multi_currency"/>
+                </field>
+            </field>
+        </record>
+
+
+        <record id="view_voucher_payment_currency" model="ir.ui.view">
+            <field name="name">account.voucher.payment.currency</field>
+            <field name="model">account.voucher</field>
+            <field name="inherit_id" ref="account_voucher.view_vendor_payment_form"/>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <field name="amount" position="attributes">
+                    <attribute name="options">{"currency_field": "payment_rate_currency_id"}</attribute>
+                </field>
+                <field name="line_dr_ids" position="attributes">
+                    <attribute name="on_change">
+                        onchange_line_ids(line_dr_ids, line_cr_ids, amount,
+                        currency_id, payment_rate_currency_id, payment_rate,
+                        type, context)
+                    </attribute>
+                </field>
+                <field name="line_cr_ids" position="attributes">
+                    <attribute name="on_change">
+                        onchange_line_ids(line_dr_ids, line_cr_ids, amount,
+                        currency_id, payment_rate_currency_id, payment_rate,
+                        type, context)
+                    </attribute>
+                </field>
+                <xpath expr="//label[@for='payment_rate']" position="before">
+                    <label for="bank_fee" colspan="1"/>
+                    <div>
+                        <field name="bank_fee"/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </openerp>
 
