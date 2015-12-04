@@ -133,7 +133,7 @@ class AccountVoucher(models.Model):
             voucher and the sum of allocation on the voucher lines.")
         }
 
-    def onchange_line_ids(
+    def onchange_line_rate_ids(
         self, cr, uid, ids, line_dr_ids, line_cr_ids, amount, voucher_currency,
             payment_currency_id, payment_rate, type, context=None):
         context = context.copy() or {}

@@ -53,14 +53,14 @@
                 </field>
                 <field name="line_dr_ids" position="attributes">
                     <attribute name="on_change">
-                        onchange_line_ids(line_dr_ids, line_cr_ids, amount,
+                        onchange_line_rate_ids(line_dr_ids, line_cr_ids, amount,
                         currency_id, payment_rate_currency_id, payment_rate,
                         type, context)
                     </attribute>
                 </field>
                 <field name="line_cr_ids" position="attributes">
                     <attribute name="on_change">
-                        onchange_line_ids(line_dr_ids, line_cr_ids, amount,
+                        onchange_line_rate_ids(line_dr_ids, line_cr_ids, amount,
                         currency_id, payment_rate_currency_id, payment_rate,
                         type, context)
                     </attribute>
