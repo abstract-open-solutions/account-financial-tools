@@ -94,6 +94,47 @@ class AccountInvoice(models.Model):
         return total, total_currency, invoice_move_lines
 
 
+class AccountVoucherLine(models.Model):
+    _inherit = 'account.voucher.line'
+
+    @api.onchange('amount_currency')
+    def onchange_amount_currency(self):
+        move = self.move_line_id.move_id
+        invoice_model = self.env['account.invoice']
+        invoice = invoice_model.search([('move_id', '=', move.id)])
+        rate = invoice.custom_exchange_rate
+        self.amount = self.amount_currency / rate
+
+    @api.one
+    def _get_amount_original_currency(self):
+        move = self.move_line_id.move_id
+        invoice_model = self.env['account.invoice']
+        invoice = invoice_model.search([('move_id', '=', move.id)])
+        rate = invoice.custom_exchange_rate
+        self.amount_original_currency = self.amount_original * rate
+
+    @api.one
+    def _get_amount_unreconciled_currency(self):
+        move = self.move_line_id.move_id
+        invoice_model = self.env['account.invoice']
+        invoice = invoice_model.search([('move_id', '=', move.id)])
+        rate = invoice.custom_exchange_rate
+        self.amount_unreconciled_currency = self.amount_unreconciled * rate
+
+    amount_currency = fields.Float(
+        string='Amount Currency',
+        digits=dp.get_precision('Account'))
+    amount_original_currency = fields.Float(
+        string='Original Amount Currency',
+        digits=dp.get_precision('Account'),
+        compute='_get_amount_original_currency')
+    amount_unreconciled_currency = fields.Float(
+        string='Residual Amount Currency',
+        digits=dp.get_precision('Account'),
+        compute='_get_amount_unreconciled_currency')
+    payment_rate = fields.Float(related='voucher_id.payment_rate')
+
+
 class AccountVoucher(models.Model):
     _inherit = 'account.voucher'
 
@@ -119,9 +160,33 @@ class AccountVoucher(models.Model):
                 cr, uid, currency, writeoff_amount - sign * (credit - debit))
         return res
 
+    def _get_custom_curr_help_label(
+            self, cr, uid, currency_id, payment_rate, payment_rate_currency_id,
+            context=None):
+        currency_pool = self.pool.get('res.currency')
+        currency_str = payment_rate_str = ''
+        if currency_id:
+            currency_str = currency_pool.browse(
+                cr, uid, currency_id, context=context).symbol
+        if payment_rate_currency_id:
+            payment_rate_str = currency_pool.browse(
+                cr, uid, payment_rate_currency_id, context=context).symbol
+        currency_help_label = _('Rate %s/%s') % (
+            currency_str, payment_rate_str)
+        return currency_help_label
+
+    def _fnct_custom_currency_help_label(
+            self, cr, uid, ids, name, args, context=None):
+        res = {}
+        for voucher in self.browse(cr, uid, ids, context=context):
+            res[voucher.id] = self._get_custom_curr_help_label(
+                cr, uid, voucher.currency_id.id, voucher.payment_rate,
+                voucher.payment_rate_currency_id.id, context=context)
+        return res
+
     bank_fee = fields.Float(
         string='Bank Fees',
-        digits=dp.get_precision('Product Price'))
+        digits=dp.get_precision('Account'))
 
     _columns = {
         'writeoff_amount': oldfields.function(
@@ -130,7 +195,10 @@ class AccountVoucher(models.Model):
             type='float',
             readonly=True,
             help="Computed as the difference between the amount stated in the \
-            voucher and the sum of allocation on the voucher lines.")
+            voucher and the sum of allocation on the voucher lines."),
+        'custom_currency_help_label': oldfields.function(
+            _fnct_custom_currency_help_label, type='text',
+            string="Custom Exchange Rate Help")
         }
 
     def onchange_line_rate_ids(
@@ -224,4 +292,40 @@ class AccountVoucher(models.Model):
             if not line.credit and not line.debit:
                 res[1][0].remove(line_id)
                 line.unlink()
+        return res
+
+    # def recompute_payment_rate(
+    #     self, cr, uid, ids, vals, currency_id, date, ttype, journal_id,
+    #         amount, context=None):
+    #     context = context or {}
+    #     res = super(AccountVoucher, self).recompute_payment_rate(
+    #         cr, uid, ids, vals, currency_id, date, ttype, journal_id, amount,
+    #         context)
+    #     if res['value'].get('payment_rate', False):
+    #         del res['value']['payment_rate']
+    #     return res
+
+    def onchange_payment_rate(
+            self, cr, uid, ids, amount, rate, partner_id, journal_id,
+            currency_id, ttype, date, payment_rate_currency_id, company_id,
+            context=None):
+        context = context or {}
+        res = super(AccountVoucher, self).onchange_amount(
+            cr, uid, ids, amount, rate, partner_id, journal_id,
+            currency_id, ttype, date, payment_rate_currency_id, company_id,
+            context)
+        del res['value']['line_dr_ids']
+        del res['value']['line_cr_ids']
+        return res
+
+    def onchange_rate(
+            self, cr, uid, ids, rate, amount, currency_id,
+            payment_rate_currency_id, company_id, context=None):
+        res = super(AccountVoucher, self).onchange_rate(
+            cr, uid, ids, rate, amount, currency_id, payment_rate_currency_id,
+            company_id, context)
+        res['value'][
+            'custom_currency_help_label'] = self._get_custom_curr_help_label(
+            cr, uid, currency_id, rate, payment_rate_currency_id,
+            context=context)
         return res
