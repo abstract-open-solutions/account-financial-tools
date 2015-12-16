@@ -20,7 +20,7 @@
 ##############################################################################
 
 import time
-from openerp import models, fields, api
+from openerp import models, fields, api, osv
 from openerp.osv import fields as oldfields
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
@@ -94,6 +94,19 @@ class AccountInvoice(models.Model):
         return total, total_currency, invoice_move_lines
 
 
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    base_currency_price_unit = fields.Float(
+        string='Base Currency Unit Price',
+        digits=dp.get_precision('Product Price'))
+
+    @api.onchange('base_currency_price_unit')
+    def onchange_base_currency_price_unit(self):
+        rate = self.invoice_id.custom_exchange_rate
+        self.price_unit = self.base_currency_price_unit * rate
+
+
 class AccountVoucherLine(models.Model):
     _inherit = 'account.voucher.line'
 
@@ -103,7 +116,8 @@ class AccountVoucherLine(models.Model):
         invoice_model = self.env['account.invoice']
         invoice = invoice_model.search([('move_id', '=', move.id)])
         rate = invoice.custom_exchange_rate
-        self.amount = self.amount_currency / rate
+        if self.amount and rate:
+            self.amount = self.amount_currency / rate
 
     @api.one
     def _get_amount_original_currency(self):
@@ -137,6 +151,21 @@ class AccountVoucherLine(models.Model):
 
 class AccountVoucher(models.Model):
     _inherit = 'account.voucher'
+
+    def create(self, cr, uid, vals, context=None):
+        context = context or {}
+        if vals['payment_rate'] != 1:
+            dr_total = 0
+            fee = vals['bank_fee']
+            for line in vals['line_dr_ids']:
+                dr_total += line[2]['amount_currency']
+
+        if (dr_total + fee) != vals['amount']:
+            raise osv.except_osv(
+                _('Error'),
+                _('Amount allocated differs from voucher amount'))
+
+        return super(AccountVoucher, self).create(cr, uid, vals, context)
 
     def _get_writeoff_amount(self, cr, uid, ids, name, args, context=None):
         if not ids:

@@ -40,7 +40,18 @@
                 </field>
             </field>
         </record>
-
+        
+        <record id="account_invoice_supplier_form_line_curr" model="ir.ui.view">
+            <field name="name">account.invoice.supplier.form.line.curr</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field[@name='price_unit']" position="after">
+                    <field name="base_currency_price_unit"/>
+                </xpath>
+            </field>
+        </record>
 
         <record id="view_voucher_payment_currency" model="ir.ui.view">
             <field name="name">account.voucher.payment.currency</field>
