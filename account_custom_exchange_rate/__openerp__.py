@@ -21,7 +21,7 @@
 
 {
     'name': 'Account Exchange Rate',
-    'version': '1.0',
+    'version': '1.1',
     'category': 'Accounting',
     'summary': 'Custome Exchange Rate',
     'description': """
