@@ -20,7 +20,8 @@
 ##############################################################################
 
 import time
-from openerp import models, fields, api, osv
+from openerp import models, fields, api
+from openerp.osv import osv
 from openerp.osv import fields as oldfields
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
