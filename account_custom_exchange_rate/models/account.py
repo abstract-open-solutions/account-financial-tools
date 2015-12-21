@@ -161,10 +161,10 @@ class AccountVoucher(models.Model):
             for line in vals['line_dr_ids']:
                 dr_total += line[2]['amount_currency']
 
-        if (dr_total + fee) != vals['amount']:
-            raise osv.except_osv(
-                _('Error'),
-                _('Amount allocated differs from voucher amount'))
+            if (dr_total + fee) != vals['amount']:
+                raise osv.except_osv(
+                    _('Error'),
+                    _('Amount allocated differs from voucher amount'))
 
         return super(AccountVoucher, self).create(cr, uid, vals, context)
 
