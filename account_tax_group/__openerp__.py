@@ -24,14 +24,14 @@
     'version': '0.1',
     'category': 'Generic Modules/Accounting',
     'description': """Taxes categorization""",
-    'author': 'Agile Business Group',
+    'author': 'Agile Business Group, Odoo Community Association (OCA)',
     'website': 'http://www.agilebg.com',
     'license': 'AGPL-3',
     "depends": ['account'],
     "data": [
         "security/ir.model.access.csv",
-        "account/account_view.xml"
+        "views/account_view.xml"
     ],
-    "active": False,
+#    "active": False,
     "installable": True
 }
