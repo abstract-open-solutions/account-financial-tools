@@ -49,7 +49,7 @@
           <field name="inherit_id" ref="account.view_tax_form" />
           <field name="arch" type="xml">
               <field name="type_tax_use" position="after">
-                	<field name="tax_group_ids" widget="selection" />
+                	<field name="tax_group_id" widget="selection" />
               </field>
       	  </field>
       </record>

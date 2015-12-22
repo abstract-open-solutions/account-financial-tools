@@ -22,14 +22,14 @@
 from openerp import fields, models
 
 
-class accountTaxGroup(models.Model):
+class AccountTaxGroup(models.Model):
     _name = 'account.tax.group'
     _description = 'Tax Group'
 
     name = fields.Char('Name', translate=True)
 
 
-class accountTax(models.Model):
+class AccountTax(models.Model):
     _inherit = 'account.tax'
 
-    tax_group_ids = fields.Many2one('account.tax.group', 'Group')
+    tax_group_id = fields.Many2one('account.tax.group', 'Group')
