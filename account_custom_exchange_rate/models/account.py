@@ -155,7 +155,7 @@ class AccountVoucher(models.Model):
 
     def create(self, cr, uid, vals, context=None):
         context = context or {}
-        if vals['payment_rate'] != 1:
+        if vals.get('payment_rate', False) and vals['payment_rate'] != 1:
             dr_total = 0
             fee = vals['bank_fee']
             for line in vals['line_dr_ids']:
